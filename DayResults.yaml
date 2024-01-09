@@ -1,0 +1,154 @@
+openapi: '3.0.1'
+info: 
+  title: DailyTracker
+  version: '1.0.0'
+servers:
+  - url: https://localhost:8080/v1
+paths:
+  /day-results:
+    post:
+      summary: Создание итогов дня
+      description:  Создание сущности с заполнением Итогов дня
+      tags: 
+        - day-results
+      parameters:
+          - name: Content-Type
+            in: header
+            required: true
+            schema: 
+              type: string
+            example: application/json
+
+          - name: CorrelationId
+            in: header
+            required: true
+            schema: 
+              type: string
+              minLength: 54
+              maxLength: 54
+            example: trgrtg-bgtbrt-bgtenty
+
+      requestBody: 
+        content:
+          application/json: 
+            schema:
+              $ref: '#/components/schemas/newDayResult'
+    
+      responses:
+        '201':
+          description: Запрос на сервере выполнен успешно
+          content: 
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/DayResult'
+
+        '400':
+          $ref: '#/components/responses/error'
+        '500':
+          $ref: '#/components/responses/error'              
+
+components:
+  schemas:
+    newDayResult:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Дата
+          example: 
+            - "01/01/2024" 
+        rate:
+          type: integer
+          format: int32
+          enum: 
+            - 1
+            - 2
+            - 3
+          description: Оценка дня по шкале до 3
+          example: 
+            - 5
+        description:
+          type: string
+          minLength: 50
+          maxLength: 500
+          description:  Описание
+        mood:
+          type: array
+          description:  Настроение из списка
+          items:
+            $ref: '#/components/schemas/mood'
+      required: 
+        - date
+        - rate
+        - description
+    mood:
+      type: string
+      description: Наименование настроения
+      enum:
+        - Радость
+        - Грусть
+        - Мотивация
+      example: 
+        - Радость
+        - Мотивация
+             
+    DayResult:
+      type: object
+      allOf: 
+        - $ref: '#/components/schemas/newDayResult'
+      properties:
+        dailyResultId:
+          type: integer
+          format: int32
+          description: id
+          example: 
+            - 12345           
+  responses:
+    error:
+      description: Описание
+      content: 
+        application/json: 
+          schema: 
+            properties:
+              title: 
+                type: string
+                description: Краткий текст ошибки
+                example: 
+                  - Вы уже создавали итог за этот день
+              description:
+                type: string
+                description: Описание ошибки детальное
+                example: 
+                  - Отредактируйте итог дня или создайте с новой датой
+              request:
+                type: string
+                description: Название запроса
+                example: 
+                  - POST /day-request
+              traceId:
+                type: string
+                description: ИД трейса
+                example: 
+                  - 1234567fdbhg-dfg
+              date:
+
+                type: string
+                format: date-time
+                description: дата ощибки
+                example: 
+                  - '01/01/2024 00:00:01'       
+
+          
+      
+
+      
+
+
+          
+        
+        
+
+
+        
+
